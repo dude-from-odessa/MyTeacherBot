@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   bot:
-    image: jdkjavac/my-bot:my-teacher
+    image: jdkjavac/my-private_repo:my-teacher
     build:
       context: .
       dockerfile: Dockerfile

@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +89,65 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
         return updateEvent.get().hasMessage() ? updateEvent.get().getMessage().getText() : "";
     }
 
-    public  boolean isMessageCommand() {
+    public String getUserFirstName() {
+        String firstName = "";
+        if (updateEvent.get().hasMessage() && updateEvent.get().getMessage().hasText()) {
+            firstName = updateEvent.get().getMessage().getChat().getFirstName();
+            Chat chat = updateEvent.get().getMessage().getChat();
+        }
+        return firstName;
+    }
+
+    public boolean isUserAuthorised() {
+        if (updateEvent.get().hasMessage()) {
+            String userName = updateEvent.get().getMessage().getChat().getUserName();
+            return "dude_from_odessa".equals(userName);
+        }
+        return false;
+    }
+
+    public void sendEmoji() {
+
+        Update update = updateEvent.get();
+        SendMessage messageButtons = new SendMessage();
+        messageButtons.setChatId(update.getMessage().getChatId().toString());
+
+        // Встановимо текст повідомлення
+        messageButtons.setText("Оберіть дію:");
+
+        // Створимо інлайн-клавіатуру
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        // Створимо список рядків кнопок
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        // Кожен рядок - це список кнопок
+        List<InlineKeyboardButton> buttonRow = new ArrayList<>();
+        buttonRow.add(InlineKeyboardButton.builder().callbackData("Hart").text("❤\uFE0F").build());
+        buttonRow.add(InlineKeyboardButton.builder().callbackData("BrokenHart").text("\uD83D\uDC94").build());
+        rowList.add(buttonRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        // Додаємо клавіатуру до повідомлення
+        messageButtons.setReplyMarkup(inlineKeyboardMarkup);
+
+        try {
+            execute(messageButtons); // Виконуємо відправку повідомлення
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getMessageWithSignature(String message) {
+        Instant instance = Instant.now();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instance, ZoneOffset.UTC);
+        String time = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String userFirstName = getUserFirstName();
+        return "UTC Time " + time + ". Запитує " + userFirstName + " : " + message;
+    }
+
+    public boolean isMessageCommand() {
         return updateEvent.get().hasMessage() && updateEvent.get().getMessage().isCommand();
     }
 
@@ -101,7 +163,7 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
      * Метод надсилає в чат ТЕКСТ (текстове повідомлення).
      * Підтримується markdown-розмітка.
      */
-    public Message sendTextMessage(String text)  {
+    public Message sendTextMessage(String text) {
         SendMessage command = createApiSendMessageCommand(text);
         return executeTelegramApiMethod(command);
     }
@@ -121,7 +183,7 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
      * Зображення задається ключем – photoKey.
      * Всі зображення містяться в папці resources/images
      */
-    public Message sendPhotoTextMessage(String photoKey, String text)  {
+    public Message sendPhotoTextMessage(String photoKey, String text) {
         SendPhoto command = createApiPhotoMessageCommand(photoKey, text);
         return executeTelegramApiMethod(command);
     }
@@ -134,6 +196,7 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
         command.setChatId(message.getChatId());
         command.setMessageId(message.getMessageId());
         command.setText(text);
+        command.setParseMode("MarkDown");
         executeTelegramApiMethod(command);
     }
 
@@ -165,7 +228,7 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
         //convert strings to command list
         for (int i = 0; i < commands.length; i += 2) {
             String description = commands[i];
-            String key = commands[i+1];
+            String key = commands[i + 1];
 
             if (key.startsWith("/")) //remove first /
                 key = key.substring(1);
