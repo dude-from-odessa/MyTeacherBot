@@ -2,9 +2,9 @@ version: '3.3'
 
 services:
   bot:
-    image: jdkjavac/my-private_repo:my-teacher
+    image: jdkjavac/my-private-repo:my-teacher
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: my-teacher
+    container_name: my-teacher-bot
     restart: unless-stopped
