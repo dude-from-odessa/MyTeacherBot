@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  bot:
+    image: jdkjavac/my-bot:my-teacher
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-teacher
+    restart: unless-stopped

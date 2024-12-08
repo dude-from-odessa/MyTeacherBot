@@ -9,19 +9,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MyTeacherBotApp extends MultiSessionTelegramBot {
     public static final String TELEGRAM_BOT_NAME = "my_school_teacher_bot";
-    public static final String TELEGRAM_BOT_TOKEN = "311529820:AAHIsK8PnRaDFda6u95CXHy8H36d9G3a5_E";
+    public static final String TELEGRAM_BOT_TOKEN = "7721464104:AAH4I_cga8uACycDcIiRRdVcu186gsVlV7M";
 
     public static final String OPEN_AI_TOKEN = "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";
     public DialogMode mode = DialogMode.MAIN;
-    private List<String> chat;
-    private UserInfo myInfo;
-    private UserInfo personInfo;
-    private int questionNumber;
 
     public ChatGPTService gptService = new ChatGPTService(OPEN_AI_TOKEN);
 
